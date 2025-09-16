@@ -5,7 +5,7 @@ import threading
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from ifstat_utils import run_ifstat_during_test  
+from ifstat_utils2 import run_ifstat_during_test  
 from gps_utils import run_gps_during_test
 
 # Int 1 - Singtel, Int 2 - Simba
