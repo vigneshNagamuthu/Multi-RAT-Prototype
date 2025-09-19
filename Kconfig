@@ -1,0 +1,85 @@
+
+config MPTCP
+	bool "MPTCP: Multipath TCP"
+	depends on INET
+	select SKB_EXTENSIONS
+	select CRYPTO_LIB_SHA256
+	select CRYPTO
+	default y
+	help
+	  Multipath TCP (MPTCP) connections send and receive data over multiple
+	  subflows in order to utilize multiple network paths. Each subflow
+	  uses the TCP protocol, and TCP options carry header information for
+	  MPTCP.
+
+if MPTCP
+
+config INET_MPTCP_DIAG
+	depends on INET_DIAG
+	def_tristate INET_DIAG
+
+config MPTCP_IPV6
+	bool "MPTCP: IPv6 support for Multipath TCP"
+	depends on IPV6=y
+	default y
+
+config MPTCP_SCHED_RR
+	bool "MPTCP: Round-Robin Scheduler"
+	default y
+
+config MPTCP_SCHED_RR_TIME
+        bool "MPTCP: Round-Robin Time Scheduler"
+        default y
+
+config MPTCP_SCHED_REDUNDANT
+	bool "MPTCP: Redundant Scheduler"
+	default y
+    help
+      This enables the redundant MPTCP scheduler, which sends packets
+      redundantly across all available subflows.
+
+config MPTCP_SCHED_RTTTHRESH
+        bool "MPTCP: RTT Thresh Scheduler"
+        default y
+    help
+      This enables the RRT Thresh MPTCP scheduler, which sends packets
+      redundantly across all available subflows.
+
+config MPTCP_LRTT
+    bool "Lowest RTT First scheduler"
+    default y
+
+config MPTCP_SCHED_STRICTPRIO
+    bool "Strict Priority scheduler"
+    default y
+    help
+      Always sends traffic over the highest priority path.
+
+config MPTCP_SCHED_PORTSCHED
+    bool "Port scheduler"
+    default y
+
+config MPTCP_KUNIT_TEST
+	tristate "This builds the MPTCP KUnit tests" if !KUNIT_ALL_TESTS
+	depends on KUNIT
+	default KUNIT_ALL_TESTS
+	help
+	  Currently covers the MPTCP crypto and token helpers.
+	  Only useful for kernel devs running KUnit test harness and are not
+	  for inclusion into a production build.
+
+	  For more information on KUnit and unit tests in general please refer
+	  to the KUnit documentation in Documentation/dev-tools/kunit/.
+
+	  If unsure, say N.
+
+config GCOV_PROFILE_MPTCP
+	bool "Enable GCOV profiling on MPTCP"
+	depends on GCOV_KERNEL
+	help
+	  Enable GCOV profiling on MPTCP for checking which functions/lines
+	  are executed.
+
+	  If unsure, say N.
+
+endif
