@@ -1,28 +1,89 @@
-# SPDX-License-Identifier: GPL-2.0
-obj-$(CONFIG_MPTCP) += mptcp.o
-obj-$(CONFIG_MPTCP_SCHED_RR_TIME) += sched_rr_time.o
-obj-$(CONFIG_MPTCP_SCHED_RR) += sched_rr.o
-obj-$(CONFIG_MPTCP_SCHED_REDUNDANT) += sched_redundant.o
-obj-$(CONFIG_MPTCP_SCHED_RTTTHRESH) += sched_rtt_thresh.o
-obj-$(CONFIG_MPTCP_LRTT) += sched_lrtt.o
-obj-$(CONFIG_MPTCP_SCHED_STRICTPRIO) += sched_sp.o
-obj-$(CONFIG_MPTCP_SCHED_PORTSCHED) += portsched.o
-obj-$(CONFIG_MPTCP_SCHED_CLIENT) += clientportsched.o
 
-mptcp-y := protocol.o subflow.o options.o token.o crypto.o ctrl.o pm.o diag.o \
-	   mib.o pm_netlink.o sockopt.o pm_userspace.o fastopen.o sched.o \
-	   mptcp_pm_gen.o pm_kernel.o
+config MPTCP
+	bool "MPTCP: Multipath TCP"
+	depends on INET
+	select SKB_EXTENSIONS
+	select CRYPTO_LIB_SHA256
+	select CRYPTO
+	default y
+	help
+	  Multipath TCP (MPTCP) connections send and receive data over multiple
+	  subflows in order to utilize multiple network paths. Each subflow
+	  uses the TCP protocol, and TCP options carry header information for
+	  MPTCP.
 
-obj-$(CONFIG_SYN_COOKIES) += syncookies.o
-obj-$(CONFIG_INET_MPTCP_DIAG) += mptcp_diag.o
+if MPTCP
 
-mptcp_crypto_test-objs := crypto_test.o
-mptcp_token_test-objs := token_test.o
-obj-$(CONFIG_MPTCP_KUNIT_TEST) += mptcp_crypto_test.o mptcp_token_test.o
+config INET_MPTCP_DIAG
+	depends on INET_DIAG
+	def_tristate INET_DIAG
 
-obj-$(CONFIG_BPF_SYSCALL) += bpf.o
+config MPTCP_IPV6
+	bool "MPTCP: IPv6 support for Multipath TCP"
+	depends on IPV6=y
+	default y
 
-# for GCOV coverage profiling
-ifdef CONFIG_GCOV_PROFILE_MPTCP
-GCOV_PROFILE := y
+config MPTCP_SCHED_RR
+	bool "MPTCP: Round-Robin Scheduler"
+	default y
+
+config MPTCP_SCHED_RR_TIME
+        bool "MPTCP: Round-Robin Time Scheduler"
+        default y
+
+config MPTCP_SCHED_REDUNDANT
+	bool "MPTCP: Redundant Scheduler"
+	default y
+    help
+      This enables the redundant MPTCP scheduler, which sends packets
+      redundantly across all available subflows.
+
+config MPTCP_SCHED_RTTTHRESH
+        bool "MPTCP: RTT Thresh Scheduler"
+        default y
+    help
+      This enables the RRT Thresh MPTCP scheduler, which sends packets
+      redundantly across all available subflows.
+
+config MPTCP_LRTT
+    bool "Lowest RTT First scheduler"
+    default y
+
+config MPTCP_SCHED_STRICTPRIO
+    bool "Strict Priority scheduler"
+    default y
+    help
+      Always sends traffic over the highest priority path.
+
+config MPTCP_SCHED_PORTSCHED
+    bool "Port scheduler"
+    default y
+
+config MPTCP_SCHED_CLIENT
+    bool "Client scheduler"
+    default y
+
+config MPTCP_KUNIT_TEST
+	tristate "This builds the MPTCP KUnit tests" if !KUNIT_ALL_TESTS
+	depends on KUNIT
+	default KUNIT_ALL_TESTS
+	help
+	  Currently covers the MPTCP crypto and token helpers.
+	  Only useful for kernel devs running KUnit test harness and are not
+	  for inclusion into a production build.
+
+	  For more information on KUnit and unit tests in general please refer
+	  to the KUnit documentation in Documentation/dev-tools/kunit/.
+
+	  If unsure, say N.
+
+config GCOV_PROFILE_MPTCP
+	bool "Enable GCOV profiling on MPTCP"
+	depends on GCOV_KERNEL
+	help
+	  Enable GCOV profiling on MPTCP for checking which functions/lines
+	  are executed.
+
+	  If unsure, say N.
+
 endif
