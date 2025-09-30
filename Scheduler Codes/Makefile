@@ -7,7 +7,7 @@ obj-$(CONFIG_MPTCP_SCHED_RTTTHRESH) += sched_rtt_thresh.o
 obj-$(CONFIG_MPTCP_LRTT) += sched_lrtt.o
 obj-$(CONFIG_MPTCP_SCHED_STRICTPRIO) += sched_sp.o
 obj-$(CONFIG_MPTCP_SCHED_PORTSCHED) += portsched.o
-
+obj-$(CONFIG_MPTCP_SCHED_CLIENT) += clientportsched.o
 
 mptcp-y := protocol.o subflow.o options.o token.o crypto.o ctrl.o pm.o diag.o \
 	   mib.o pm_netlink.o sockopt.o pm_userspace.o fastopen.o sched.o \
